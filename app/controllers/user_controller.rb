@@ -1,7 +1,7 @@
 class UserController < ApplicationController
 
   def recommendations
-    render text: "Marta, Leo"
+    render text: "lol"
   end
 
 end
