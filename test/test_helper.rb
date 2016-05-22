@@ -34,5 +34,9 @@ class ActiveSupport::TestCase
     ['Marta', 'Leo']
   end
 
+  def assert_contained(a1, a2)
+    a2.all? { |e| a1.include?(e) }
+  end
+
   # Add more helper methods to be used by all tests here...
 end

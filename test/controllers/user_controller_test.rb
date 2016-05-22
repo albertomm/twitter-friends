@@ -16,8 +16,19 @@ class UserControllerTest < ActionController::TestCase
     assert_equal expected_result, response.body
   end
 
-  # test "add user" do
-  #   post '/users'
-  #   assert_response :redirect
-  # end
+  test "create user" do
+    post :create, username: 'newUser'
+    assert_response :success
+    assert User.find_by!({:name => 'newUser'})
+  end
+
+  test "add friends" do
+    username = 'friendlyuser'
+    friendnames = ['friendone', 'friendtwo']
+    postdata = {:friendnames => friendnames}
+    post :create, {:username => username}
+    post :add_friends, {:username => username, :friendnames => friendnames}
+    expected_body = ActiveSupport::JSON.encode(friendnames)
+    assert_equal response.body, expected_body
+  end
 end
