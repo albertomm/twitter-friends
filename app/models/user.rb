@@ -1,3 +1,5 @@
+require 'set'
+
 class User < ActiveRecord::Base
 
   validates :name, presence: true, uniqueness: true
@@ -23,11 +25,27 @@ class User < ActiveRecord::Base
   # FIXME: :friends visibility should be private to force
   # the use of :follow
 
-  def follow(friend)
-    return if friend.id.nil?
-    return if friend.id == self.id
-    return if friend.name == self.name
-    self.friends.push(friend)
+  def follow(*friends)
+    friends.each do |friend|
+    # fail 'friend id is nil' if friend.id == nil
+      next if friend.id == self.id
+      next if friend.name == self.name
+      self.friends.push(friend)
+    end
+  end
+
+  def suggest_friends
+    candidates = Set.new()
+    result = Set.new()
+    self.friends.each do |friend|
+      friend.friends.each do |candidate|
+        next if friends.include? candidate
+        if candidates.add?(candidate).nil?
+          result.add(candidate)
+        end
+      end
+    end
+    result.to_a
   end
 
 end

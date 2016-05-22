@@ -1,4 +1,4 @@
-watch( '.*\.rb' ) do |something|
+watch( '.*\.(rb|yml)' ) do |something|
   puts
   puts "#{something} was modified"
   puts
