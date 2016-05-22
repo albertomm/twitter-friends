@@ -49,34 +49,9 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "users get recommendations" do
-
-    testdata = {
-      'X' => ['Laura', 'Pepe', 'Manuel'],
-      'Laura' => ['Pepe', 'Marta', 'María'],
-      'Pepe' => ['Leo', 'Laura', 'Marta', 'Juan'],
-      'Manuel' => ['Leo', 'Pepe', 'Sergio', 'Víctor'],
-    }
-    testresult = ['Marta', 'Leo']
-
-    # Create the test users and relations
-    users = {}
-    testdata.each do |username, friendnames|
-      # Get or create the user
-      user = users[username] = users.key?(username) ? users.fetch(username) : User.create({:name => username})
-      # Get or create the friends
-      friendnames.each do |n|
-        users[n] = users.key?(n) ? users.fetch(n) : User.create({:name => n})
-      end
-
-      # Make the user follow the friends
-      friends = friendnames.map {|n| users.fetch(n)}
-      user.follow(*friends)
-    end
-
-    # Check the recommendations
-    result = users.fetch('X').suggest_friends.map { |x| x.name }
-    assert_equal testresult, result
-
+    create_test_users
+    result = User.find_by({:name => 'X'}).suggest_friends.map { |x| x.name }
+    assert_equal expected_result, result
   end
 
 end

@@ -2,17 +2,20 @@ require 'test_helper'
 
 class UserControllerTest < ActionController::TestCase
 
-  test "user X recommendations" do
-    get :recommendations
-    assert_response :success
-    assert_equal "Marta, Leo", response.body
+  test "missing user raises exception" do
+    assert_raises ActiveRecord::RecordNotFound do
+      get :recommendations, username: 'someuser'
+    end
   end
 
-  # test "missing user" do
-  #   get '/users/someuser'
-  #   assert_response :missing
-  # end
-  #
+  test "users get JSON recommendations" do
+    create_test_users
+    get :recommendations, username: "X"
+    assert_response :success
+    expected_result = ActiveSupport::JSON.encode(['Marta', 'Leo'])
+    assert_equal expected_result, response.body
+  end
+
   # test "add user" do
   #   post '/users'
   #   assert_response :redirect

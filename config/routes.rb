@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  get 'users/X/recommendations' => 'user#recommendations'
+  get 'users/:username/recommendations' => 'user#recommendations'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
