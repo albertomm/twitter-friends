@@ -29,6 +29,13 @@ class ActiveSupport::TestCase
     ['Marta', 'Leo']
   end
 
+  # Assert that the response is the info of the expected users
+  def assert_user_names(expected_names)
+    users = ActiveSupport::JSON.decode(response.body)
+    names = users.map { |user| user.fetch('name', nil) }
+    assert_equal expected_names, names
+  end
+
   # Get a random unique user name to be used in testing
   def generate_random_username
     SecureRandom.uuid # Almost guaranteed to be unique

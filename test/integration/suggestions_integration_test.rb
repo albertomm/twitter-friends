@@ -2,12 +2,11 @@ require 'test_helper'
 
 class SuggestionsIntegrationTest < ActionDispatch::IntegrationTest
 
-  test "users get JSON recommendations" do
-    expected_result = create_test_users
-    get '/users/X/recommendations'
+  test "users get friend suggestions" do
+    expected_names = create_test_users
+    get "/users/X/suggestions"
     assert_response :success
-    expected_body = ActiveSupport::JSON.encode(expected_result)
-    assert_equal expected_body, response.body
+    assert_user_names expected_names
   end
-  
+
 end
