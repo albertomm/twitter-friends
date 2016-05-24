@@ -2,40 +2,49 @@ require 'set'
 
 class User < ActiveRecord::Base
 
+  # Requires a unique name
   validates :name,
     presence: true,
     uniqueness: true,
-    length: {in: (1..15)}
+    length: {in: (1..15)} # Twitter limits
 
+  # A User has N friends wich are also Users
   has_and_belongs_to_many :friends,
     join_table: :follows,
     class_name: 'User',
     foreign_key: :user_id,
     association_foreign_key: :friend_id
 
+  # Parameter used to create URLs
   def to_param
     return self.name
   end
 
+  # Follow other users that become friends
   def follow(*friends)
     friends.each do |friend|
+      # Fail for unsaved users
       fail 'friend.id is nil' if friend.id.nil?
-      next if friend.id == self.id
+      # The user cannot follow itself
       next if friend.name == self.name
       self.friends.push(friend)
     end
   end
 
+  # Remove a user from the friend list
   def unfollow(friend)
     self.friends.delete(friend)
   end
 
+  # Get recommendations about new friends
   def suggest_friends
-    candidates = Set.new
+    candidates = Set.new # Users followed by friends
     result = Set.new
     self.friends.each do |friend|
       friend.friends.each do |candidate|
+        # Ignore users already followed
         next if friends.include? candidate
+        # If the candidate is repeated it can be suggested
         if candidates.add?(candidate).nil?
           result.add(candidate)
         end
