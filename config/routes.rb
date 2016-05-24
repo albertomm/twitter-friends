@@ -1,11 +1,13 @@
 Rails.application.routes.draw do
 
-  post 'users' => 'user#create'
-
-  #get  'users/:username/friends' => 'user#get_friends'
-  post 'users/:username/friends' => 'user#add_friends'
-
-  get 'users/:username/recommendations' => 'user#recommendations'
+  resources :users,
+    :param => :name,
+    :only => [:create, :show],
+    :format => false do
+      resources :friends,
+        :param => :name,
+        :only => [:index, :create, :show, :destroy]
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
