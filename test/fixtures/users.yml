@@ -5,6 +5,8 @@
 # below each fixture, per the syntax in the comments below
 #
 
+# # These models have relations to itself and don't work
+# # well with fixtures. There is a test helper to create them.
 # X:
 #   name: X
 #   friends: Laura, Pepe, Manuel
@@ -17,3 +19,7 @@
 # Manuel:
 #   name: Manuel
 #   friends: Leo, Pepe, Sergio, Víctor
+
+# User to test the friends controller
+Friendly user:
+  name: 'friendly_user'
