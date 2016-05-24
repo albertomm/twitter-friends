@@ -10,20 +10,9 @@ class User < ActiveRecord::Base
     foreign_key: :user_id,
     association_foreign_key: :friend_id
 
-  # validate :cannot_follow_itself
-  #
-  # def cannot_follow_itself
-  #   puts "VALIDATING #{friends.length}"
-  #   self.friends.each do |friend|
-  #     puts friend.id
-  #     if friend.id == self.id
-  #       errors.add(:friend_id, 'cannot follow itself')
-  #     end
-  #   end
-  # end
-
-  # FIXME: :friends visibility should be private to force
-  # the use of :follow
+  def to_param
+    return self.name
+  end
 
   def follow(*friends)
     friends.each do |friend|
@@ -35,8 +24,8 @@ class User < ActiveRecord::Base
   end
 
   def suggest_friends
-    candidates = Set.new()
-    result = Set.new()
+    candidates = Set.new
+    result = Set.new
     self.friends.each do |friend|
       friend.friends.each do |candidate|
         next if friends.include? candidate
