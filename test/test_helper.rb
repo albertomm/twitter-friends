@@ -1,11 +1,14 @@
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'securerandom'
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
+  # Create the users mentioned in the requirements example.
+  # Self-relations seems to be too complex to use fixtures.
   def create_test_users
     testdata = {
       'X' => ['Laura', 'Pepe', 'Manuel'],
@@ -17,26 +20,34 @@ class ActiveSupport::TestCase
     # Create the test users and relations
     users = {}
     testdata.each do |username, friendnames|
-      # Get or create the user
-      user = users[username] = users.key?(username) ? users.fetch(username) : User.create({:name => username})
-      # Get or create the friends
-      friendnames.each do |n|
-        users[n] = users.key?(n) ? users.fetch(n) : User.create({:name => n})
-      end
-
-      # Make the user follow the friends
-      friends = friendnames.map {|n| users.fetch(n)}
+      user = User.find_or_create_by(name: username)
+      friends = friendnames.map { |n| User.find_or_create_by(name: n) }
       user.follow(*friends)
     end
-  end
 
-  def expected_result
+    # Return the expected result
     ['Marta', 'Leo']
   end
 
-  def assert_contained(a1, a2)
-    a2.all? { |e| a1.include?(e) }
+  # Get a random unique user name to be used in testing
+  def generate_random_username
+    SecureRandom.uuid # Almost guaranteed to be unique
   end
 
-  # Add more helper methods to be used by all tests here...
+  # Assert that the response code is 201 (REST's "created") and the headers
+  # contains a location for the new record. This is useful to assert REST POST
+  # responses.
+  def assert_created_redirect(location_url)
+    assert_response :created
+    assert response.headers.key?("Location"), "Location header not found."
+    assert response.headers["Location"], location_url
+  end
+
+  # Follow a REST "created" redirect.
+  # RoR "follow_redirect!" only works with status code 302
+  def follow_created_redirect
+    assert_response :created
+    get response.headers["Location"]
+  end
+
 end
