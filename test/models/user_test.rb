@@ -12,6 +12,12 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "user names lenght is limited to 15 chars" do
+    assert_raises ActiveRecord::RecordInvalid do
+      User.create!(name: "a_looooooooooooooooooooong_name")
+    end
+  end
+
   test "user names must be unique" do
     username = generate_random_username
     User.create!(name: username)

@@ -2,7 +2,10 @@ require 'set'
 
 class User < ActiveRecord::Base
 
-  validates :name, presence: true, uniqueness: true
+  validates :name,
+    presence: true,
+    uniqueness: true,
+    length: {in: (1..15)}
 
   has_and_belongs_to_many :friends,
     join_table: :follows,

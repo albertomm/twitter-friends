@@ -23,4 +23,11 @@ class UsersControllerTest < ActionController::TestCase
     assert_equal response.body, user.to_json
   end
 
+  test "create invalid user" do
+    username = "a_looooooooooooooooooooong_name"
+    assert_raises ActiveRecord::RecordInvalid do
+      post :create, name: username
+    end
+  end
+
 end

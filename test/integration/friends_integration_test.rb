@@ -42,5 +42,17 @@ class FriendsIntegrationTest < ActionDispatch::IntegrationTest
     get "/users/#{username}/friends/#{friendnames[2]}"
     assert_response :missing
   end
-  
+
+  test "create invalid friend" do
+    # Reject friend names too long
+    username = "friendly_user"
+    friendname = "a_looooooooooooooooooooong_name"
+    post "/users/#{username}/friends", name: friendname
+    assert_response 422 # "Unprocessable Entity"
+
+    # Reject friend names too short
+    post "/users/#{username}/friends", name: ""
+    assert_response 422 # "Unprocessable Entity"
+  end
+
 end

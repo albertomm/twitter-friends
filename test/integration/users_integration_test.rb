@@ -23,4 +23,15 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
     assert_equal json.fetch('name'), username
   end
 
+  test "create invalid user" do
+    # Reject user names too long
+    username = "a_looooooooooooooooooooong_name"
+    post "/users", name: username
+    assert_response 422 # "Unprocessable Entity"
+
+    # Reject user names too short
+    post "/users", name: ""
+    assert_response 422 # "Unprocessable Entity"
+  end
+
 end
