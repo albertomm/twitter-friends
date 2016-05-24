@@ -13,20 +13,24 @@
 
 ActiveRecord::Schema.define(version: 20160522052328) do
 
-  create_table "follows", id: false, force: :cascade do |t|
-    t.integer "user_id",   limit: 4, null: false
-    t.integer "friend_id", limit: 4, null: false
+  create_table "follows", force: :cascade do |t|
+    t.integer  "user_id",    limit: 4, null: false
+    t.integer  "friend_id",  limit: 4, null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
-  add_index "follows", ["friend_id"], name: "index_follows_friend", using: :btree
-  add_index "follows", ["user_id"], name: "index_follows_user", using: :btree
+  add_index "follows", ["friend_id"], name: "fk_rails_9c4f187590", using: :btree
+  add_index "follows", ["user_id", "friend_id"], name: "index_follows_on_user_id_and_friend_id", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.string   "name",       limit: 255
+    t.string   "name",       limit: 15, null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
   end
 
-  add_foreign_key "follows", "users", column: "friend_id", name: "fk_follows_friend"
-  add_foreign_key "follows", "users", name: "fk_follows_user"
+  add_index "users", ["name"], name: "index_users_on_name", unique: true, using: :btree
+
+  add_foreign_key "follows", "users"
+  add_foreign_key "follows", "users", column: "friend_id"
 end
