@@ -1,15 +1,15 @@
 class FriendsController < ApplicationController
 
+  before_action { @user = User.find_by!(name: params[:user_name]) }
+
   # Show all the user friends
   def index
-    user = User.find_by!(name: params[:user_name])
-    render json: user.friends
+    render json: @user.friends
   end
 
   # Show one of the user friends
   def show
-    user = User.find_by!(name: params[:user_name])
-    friend = user.friends.find_by!({:name => params[:name]})
+    friend = @user.friends.find_by!(name: params[:name])
     render json: friend
   end
 
@@ -23,9 +23,8 @@ class FriendsController < ApplicationController
 
   # Remove a friend from the user
   def destroy
-    user = User.find_by!(name: params[:user_name])
     friend = User.find_by!(name: params[:name])
-    user.unfollow(friend)
+    @user.unfollow(friend)
     render json: friend
   end
 
@@ -33,23 +32,20 @@ class FriendsController < ApplicationController
 
   # Add a single friend to the user
   def create_one
-    user = user = User.find_by!(name: params[:user_name])
     friend = User.find_or_create_by!(name: params[:names])
-    user.follow(friend)
-    redirect_to user_friend_path(user, friend), status: :created
+    @user.follow(friend)
+    redirect_to user_friend_path(@user, friend), status: :created
   end
 
   # Add multiple friends to the user
   def create_many
-    user = User.find_by!(name: params[:user_name])
-
     # Get or create the friends
     friends = Set.new(params[:names]).map do |name|
       User.find_or_create_by!({:name => name})
     end
 
     # Make the user follow the friends
-    user.follow(*friends)
+    @user.follow(*friends)
     render nothing: true, status: :created
   end
 
