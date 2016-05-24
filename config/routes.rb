@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :friends,
         param: :name,
         only: [:index, :create, :show, :destroy]
+      resource :suggestions, only: [:index]
   end
 
   # The priority is based upon order of creation: first created -> highest priority.
