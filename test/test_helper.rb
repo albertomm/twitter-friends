@@ -36,9 +36,9 @@ class ActiveSupport::TestCase
     assert_equal expected_names, names
   end
 
-  # Get a random unique user name to be used in testing
+  # Get a random and hopefully unique user name to be used in a test
   def generate_random_username
-    SecureRandom.uuid # Almost guaranteed to be unique
+    SecureRandom.uuid.remove(/\W/).slice(0, 15)
   end
 
   # Assert that the response code is 201 (REST's "created") and the headers

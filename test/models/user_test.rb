@@ -13,9 +13,10 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "user names must be unique" do
-    User.create!(name: "some_unique_name")
+    username = generate_random_username
+    User.create!(name: username)
     assert_raises ActiveRecord::RecordInvalid do
-      User.create!(name: "some_unique_name")
+      User.create!(name: username)
     end
   end
 
