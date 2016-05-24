@@ -16,15 +16,16 @@ class FriendsController < ApplicationController
   # Add friends to the user.
   # We accept a single name or a collection
   def create
-    multi = params[:names].respond_to? :each
-    multi ? create_multi : create_one
+    # Use different methods for single and multiple creation
+    many = params[:names].respond_to? :each
+    many ? create_many : create_one
   end
 
   # Remove a friend from the user
   def destroy
     user = User.find_by!(name: params[:user_name])
     friend = User.find_by!(name: params[:name])
-    user.friends.delete(friend)
+    user.unfollow(friend)
     render json: friend
   end
 
@@ -33,18 +34,18 @@ class FriendsController < ApplicationController
   # Add a single friend to the user
   def create_one
     user = user = User.find_by!(name: params[:user_name])
-    friend = User.find_or_create_by(name: params[:names])
+    friend = User.find_or_create_by!(name: params[:names])
     user.follow(friend)
     redirect_to user_friend_path(user, friend), status: :created
   end
 
   # Add multiple friends to the user
-  def create_multi
+  def create_many
     user = User.find_by!(name: params[:user_name])
 
     # Get or create the friends
     friends = Set.new(params[:names]).map do |name|
-      User.find_or_create_by({:name => name})
+      User.find_or_create_by!({:name => name})
     end
 
     # Make the user follow the friends
@@ -52,10 +53,4 @@ class FriendsController < ApplicationController
     render nothing: true, status: :created
   end
 
-  # # Render the names of the sugested new friends for the user
-  # def recommendations
-  #   user = User.find_by!({:name => params[:username]})
-  #   suggested_names = user.suggest_friends.collect {|f| f.name}
-  #   render json: suggested_names
-  # end
 end

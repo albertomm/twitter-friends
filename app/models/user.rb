@@ -19,11 +19,15 @@ class User < ActiveRecord::Base
 
   def follow(*friends)
     friends.each do |friend|
-    # fail 'friend id is nil' if friend.id == nil
+      fail 'friend.id is nil' if friend.id.nil?
       next if friend.id == self.id
       next if friend.name == self.name
       self.friends.push(friend)
     end
+  end
+
+  def unfollow(friend)
+    self.friends.delete(friend)
   end
 
   def suggest_friends
