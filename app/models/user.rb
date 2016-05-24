@@ -2,6 +2,11 @@ require 'set'
 
 class User < ActiveRecord::Base
 
+  def self.update_queue(threshold, limit = 10)
+    date_min = Time.now - threshold
+    User.all.where("last_update < ?", date_min).order(:last_update).limit(limit)
+  end
+
   # Requires a unique name
   validates :name,
     presence: true,
@@ -22,12 +27,19 @@ class User < ActiveRecord::Base
 
   # Follow other users that become friends
   def follow(*friends)
+    updated = false
     friends.each do |friend|
       # Fail for unsaved users
       fail 'friend.id is nil' if friend.id.nil?
       # The user cannot follow itself
       next if friend.name == self.name
       self.friends.push(friend)
+      updated = true
+    end
+    # Set the last_update time only if something changed
+    if updated then
+      self.last_update = Time.now
+      self.save
     end
   end
 

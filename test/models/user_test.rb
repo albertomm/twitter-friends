@@ -12,6 +12,43 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test "users have a last updated timestamp" do
+    # It defaults to 0
+    username = generate_random_username
+    user = User.create!(name: username)
+    assert_not user.last_update
+
+    # It doesn't update when following invalid Users
+    user.follow(user)
+    assert_not user.last_update
+
+    # It is set to the current time when following someone
+    user.follow(User.create!(name: generate_random_username))
+    assert_in_delta Time.now, user.last_update, 1
+  end
+
+  test "user update queue" do
+    # Delete all users created by fixtures
+    User.all.delete_all
+
+    # Create user randomly with a range of 'last_update's
+    expected_users = (0...10).to_a.shuffle.map do |n|
+      name = generate_random_username
+      User.create!(name: name, last_update: Time.now - n * 100)
+    end
+
+    # Expect the users sorted by last_udpate
+    expected_users.sort_by! { |u| u.last_update.to_i }
+
+    # Test result order
+    assert_equal expected_users[0...-1], Array(User.update_queue(0, 1000))
+    # Test result size limit
+    assert_equal expected_users[0,5], Array(User.update_queue(0, 5))
+    # Test result threshold
+    assert_equal expected_users[0...-4], Array(User.update_queue(350, 10))
+    assert_equal expected_users[0...-7], Array(User.update_queue(650, 10))
+  end
+
   test "user names lenght is limited to 15 chars" do
     assert_raises ActiveRecord::RecordInvalid do
       User.create!(name: "a_looooooooooooooooooooong_name")
