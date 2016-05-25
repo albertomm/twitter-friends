@@ -1,6 +1,6 @@
 class FriendsController < ApplicationController
 
-  before_action { @user = User.find_by!(name: params[:user_name]) }
+  before_action :find_user_by_name
 
   # Show all the user friends
   def index

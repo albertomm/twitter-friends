@@ -32,8 +32,7 @@ class FriendsIntegrationTest < ActionDispatch::IntegrationTest
     # The friend list now includes the new friends
     get "/users/#{username}/friends"
     response_json = ActiveSupport::JSON.decode(response.body)
-    response_names = response_json.map {|f| f.fetch("name", nil) }
-    assert_equal friendnames, response_names
+    assert_user_names friendnames
 
     # Unfollow a friend
     delete "/users/#{username}/friends/#{friendnames[2]}"
@@ -44,9 +43,13 @@ class FriendsIntegrationTest < ActionDispatch::IntegrationTest
   end
 
   test "create invalid friend" do
+    # Create a user
+    username = generate_random_username
+    post "/users", name: username
+    assert_response :success
+
     # Reject friend names too long
-    username = "friendly_user"
-    friendname = "a_looooooooooooooooooooong_name"
+    friendname = "a_looooooooooooooooooooooooooong_name"
     post "/users/#{username}/friends", name: friendname
     assert_response 422 # "Unprocessable Entity"
 

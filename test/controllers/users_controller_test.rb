@@ -3,8 +3,8 @@ require 'test_helper'
 class UsersControllerTest < ActionController::TestCase
 
   test "get missing user raises exception" do
-    assert_raises ActiveRecord::RecordNotFound do
-      get :show, name: generate_random_username
+    assert_raises *NOT_FOUND_EXCEPTIONS  do
+      get :show, name: "missing user"
     end
   end
 
@@ -28,9 +28,8 @@ class UsersControllerTest < ActionController::TestCase
 
   test "create invalid user" do
     username = "a_looooooooooooooooooooong_name"
-    assert_raises ActiveRecord::RecordInvalid do
-      post :create, name: username
-    end
+    post :create, name: username
+    assert_response 422 # "Unprocessable Entity"
   end
 
 end

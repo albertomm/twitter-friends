@@ -3,16 +3,16 @@ require 'test_helper'
 class FriendsControllerTest < ActionController::TestCase
 
   test "add one friend" do
-    # This user already exists because is on a fixture
-    username = "friendly_user"
+    # Create a user
+    username = generate_random_username
+    User.create!(name: username)
 
     # Post a friend name to the user friends resource
     friendname = generate_random_username
     post :create, user_name: username, names: friendname
 
     # The new friend should be present as a user
-    assert friend = User.find_by(name: friendname),
-      "Friend User wasn't created"
+    assert friend = User.find_by(name: friendname), "Friend User wasn't created"
 
     # The new friend should be present in the user's friends
     user = User.find_by!(name: username)
@@ -27,9 +27,9 @@ class FriendsControllerTest < ActionController::TestCase
   end
 
   test "add many friends and delete" do
-    # This user is on a fixture
-    username = "friendly_user"
-    user = User.find_by(name: username)
+    # Crete a user
+    username = generate_random_username
+    user = User.create!(name: username)
 
     # POST to make the user follow the friends
     names = (0...5).map { generate_random_username }

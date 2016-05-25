@@ -1,46 +1,48 @@
 require 'set'
 
-class User < ActiveRecord::Base
+class User
 
-  # CLASS METHODS
+  include Neo4j::ActiveNode
+
+  ## CLASS METHODS
 
   # Return the users most likely to be needing an update
   def self.get_update_queue(threshold, limit = 10)
-    date_min = Time.now - threshold
-    User.all.where("last_update < ?", date_min).order(:last_update).limit(limit)
+    date_min = Time.now.to_i - threshold
+    users = User.all(:u)
+      .where("u.last_update < {date_min}")
+      .params(date_min: date_min)
+      .order(:last_update)
+      .limit(limit)
   end
 
-  # FIELDS
+  ## PROPERTIES
 
   # User name
-  validates :name,
-    presence: true,
-    uniqueness: true,
-    length: {in: (1..15)} # Twitter limits
+  property :name, type: String, constraint: :unique
+  validates :name, presence: true, uniqueness: true, length: {in: (1..15)}
 
   # User relation level
   LEVEL_PRIMARY = 0    # The user was added to the app explicitly
   LEVEL_FRIEND = 1  # The user was added only as a friend of other
   LEVEL_OTHER = 2   # The user is a friend of a friend
+  property :level, type: Integer, default: 100
+  validates :level, presence: true
 
-  validates :level,
-    presence: true
+  # Friends
+  has_many :out, :friends, model_class: "User", type: "friends"
 
-  # A User has N friends wich are also Users
-  has_and_belongs_to_many :friends,
-    join_table: :follows,
-    class_name: "User",
-    foreign_key: :user_id,
-    association_foreign_key: :friend_id
+  # Timestamp of the last friends update
+  property :last_update, type: DateTime, default: 0
+
+  ## PUBLIC METHODS
 
   # Parameter used to create URLs
   def to_param
     return self.name
   end
 
-  # PUBLIC METHODS
-
-  # Change the user level if the new level is closer
+  # Change the user level if the user is closer (its value is lower)
   def level_up(new_level)
     old_level = self.level
     if new_level < self.level then

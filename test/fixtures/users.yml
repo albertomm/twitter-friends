@@ -12,7 +12,3 @@
 # Manuel:
 #   name: Manuel
 #   friends: Leo, Pepe, Sergio, Víctor
-
-# User to test the friends controller
-Friendly user:
-  name: 'friendly_user'

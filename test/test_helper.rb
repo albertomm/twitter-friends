@@ -5,10 +5,22 @@ require 'securerandom'
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-  fixtures :all
+  # fixtures :all
+
+  # List of exceptions used to notify a missing record
+  NOT_FOUND_EXCEPTIONS = [
+    # ActiveRecord::RecordNotFound,
+    Neo4j::ActiveNode::Labels::RecordNotFound
+  ]
+
+  # List of exceptions used to notify an invalid record
+  INVALID_RECORD_EXCEPTIONS = [
+    # ActiveRecord::RecordInvalid,
+    Neo4j::ActiveNode::Persistence::RecordInvalidError
+  ]
 
   # Create the users mentioned in the requirements example.
-  # Self-relations seems to be too complex to use fixtures.
+  # Self-relations seems to be too complex to use in fixtures.
   def create_test_users
     testdata = {
       'X' => ['Laura', 'Pepe', 'Manuel'],
@@ -32,8 +44,8 @@ class ActiveSupport::TestCase
   # Assert that the response is the info of the expected users
   def assert_user_names(expected_names)
     users = ActiveSupport::JSON.decode(response.body)
-    names = users.map { |user| user.fetch('name', nil) }
-    assert_equal expected_names, names
+    names = users.map { |user| user.fetch('name') }
+    assert_equal expected_names.sort, names.sort
   end
 
   # Get a random and hopefully unique user name to be used in a test
