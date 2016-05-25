@@ -14,6 +14,9 @@ class UsersControllerTest < ActionController::TestCase
     post :create, name: username
     assert user = User.find_by(name: username), 'User not created'
 
+    # Users created explicitly have the corresponding level
+    assert_equal User::LEVEL_PRIMARY, user.level
+
     # The response should be a redirection to the User URL
     assert_response :created
     assert_created_redirect user_path(user)
