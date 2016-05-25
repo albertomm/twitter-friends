@@ -6,8 +6,8 @@
 #
 default: &default
   adapter: mysql2
-  username: pruebas
-  password: pruebas
+  username: <%= Figaro.env.database_user! %>
+  password: <%= Figaro.env.database_pass! %>
 
 development:
   <<: *default
