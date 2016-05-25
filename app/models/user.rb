@@ -4,7 +4,8 @@ class User < ActiveRecord::Base
 
   # CLASS METHODS
 
-  def self.update_queue(threshold, limit = 10)
+  # Return the users most likely to be needing an update
+  def self.get_update_queue(threshold, limit = 10)
     date_min = Time.now - threshold
     User.all.where("last_update < ?", date_min).order(:last_update).limit(limit)
   end

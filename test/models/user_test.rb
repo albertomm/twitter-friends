@@ -76,12 +76,12 @@ class UserTest < ActiveSupport::TestCase
     expected_users.sort_by! { |u| u.last_update.to_i }
 
     # Test result order
-    assert_equal expected_users[0...-1], Array(User.update_queue(0, 1000))
+    assert_equal expected_users[0...-1], Array(User.get_update_queue(0, 1000))
     # Test result size limit
-    assert_equal expected_users[0,5], Array(User.update_queue(0, 5))
+    assert_equal expected_users[0,5], Array(User.get_update_queue(0, 5))
     # Test result threshold
-    assert_equal expected_users[0...-4], Array(User.update_queue(350, 10))
-    assert_equal expected_users[0...-7], Array(User.update_queue(650, 10))
+    assert_equal expected_users[0...-4], Array(User.get_update_queue(350, 10))
+    assert_equal expected_users[0...-7], Array(User.get_update_queue(650, 10))
   end
 
   test "user names lenght is limited to 15 chars" do

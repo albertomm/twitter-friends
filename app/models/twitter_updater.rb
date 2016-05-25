@@ -1,3 +1,6 @@
+# This is not a model per se, but a generic object that contains the
+# logic required to update a user's friends making calls to the Twitter REST API
+# Maybe we should call it a service?
 class TwitterUpdater
 
   def initialize
@@ -29,7 +32,7 @@ class TwitterUpdater
   # Main update loop method
   def do_update_loop
     # Get some users ready to be updated
-    users = User.update_queue(60, 100)
+    users = User.get_update_queue(60, 100)
 
     # Update the users
     users.each do |user|
