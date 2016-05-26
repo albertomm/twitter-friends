@@ -22,11 +22,11 @@ class User
   property :name, type: String, constraint: :unique
   validates :name, presence: true, uniqueness: true, length: {in: (1..15)}
 
-  # User relation level
-  LEVEL_PRIMARY = 0    # The user was added to the app explicitly
-  LEVEL_FRIEND = 1  # The user was added only as a friend of other
-  LEVEL_OTHER = 2   # The user is a friend of a friend
-  property :level, type: Integer, default: 100
+  # User relation level. This is to prevent crawling all twitter users.
+  LEVEL_PRIMARY = 0 # The user was added to the app explicitly
+  LEVEL_FRIEND = 1  # The user was added because friend of a primary user
+  LEVEL_OTHER = 2   # The user is a friend of a friend, crawling stops here
+  property :level, type: Integer, default: LEVEL_OTHER
   validates :level, presence: true
 
   # Friends
@@ -37,7 +37,7 @@ class User
 
   ## PUBLIC METHODS
 
-  # Parameter used to create URLs
+  # Get the parameter used to create resource URLs
   def to_param
     return self.name
   end
@@ -58,18 +58,14 @@ class User
     end
   end
 
-  # Add other users as friends
-  def follow(*friends)
+  # Add other users as friends, will update itself.
+  def follow!(*friends)
     friends.each do |friend|
-      # Ignore nil friends
-      next if friend.nil?
-      next if friend.id.nil?
       # The user cannot follow itself
       next if friend.name == self.name
       # Don't add duplicates
       next if self.friends.include?(friend)
       self.friends << friend
-      updated = true
     end
     # Set the last_update time
     self.last_update = Time.now
@@ -82,33 +78,17 @@ class User
   end
 
   # Get recommendations about new friends
-  # DEPRECATED: relational style
-  def suggest_friends_relational
-    candidates = Set.new # Users followed by friends
-    result = Set.new
-    self.friends.each do |friend|
-      friend.friends.each do |candidate|
-        # Ignore users already followed
-        next if friends.include? candidate
-        # If the candidate is repeated it can be suggested
-        if candidates.add?(candidate).nil?
-          result.add(candidate)
-        end
-      end
-    end
-    result.to_a
-  end
-
-  # Get recommendations about new friends using Cypher (Neo4j)
   def suggest_friends
     # Retrieve the suggested friend IDs
     friend_ids = Neo4j::Session.current.query
-      .match('(user:User {name: "X"})-[:follows]->(friend1:User)-[:follows]->(recommend:User)<--(friend2:User)')
+      .match('(user:User {name: {name}})-[:follows]->(friend1:User)-[:follows]->(recommend:User)<--(friend2:User)')
+      .params(name: self.name)
       .where('(user)-[:follows]->(friend2) AND NOT (user)-[:follows]->(recommend)')
       .return('distinct(recommend).uuid as id')
       .to_a.map { |n| n.id }
     # Return the friend objects
-    User.find(friend_ids)
+    # TODO: use only one query to get all users
+    friend_ids.map {|uuid| User.find(uuid)}
   end
 
 end

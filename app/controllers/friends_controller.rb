@@ -33,7 +33,7 @@ class FriendsController < ApplicationController
   # Add a single friend to the user
   def create_one
     friend = User.find_or_create_by!(name: params[:names])
-    @user.follow(friend)
+    @user.follow!(friend)
     redirect_to user_friend_path(@user, friend), status: :created
   end
 
@@ -45,7 +45,7 @@ class FriendsController < ApplicationController
     end
 
     # Make the user follow the friends
-    @user.follow(*friends)
+    @user.follow!(*friends)
     render nothing: true, status: :created
   end
 

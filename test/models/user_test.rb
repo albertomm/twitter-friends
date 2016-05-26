@@ -20,13 +20,13 @@ class UserTest < ActiveSupport::TestCase
 
     # It is set to the current time when following someone
     previous_date = user.last_update
-    user.follow(User.create!(name: generate_random_username))
+    user.follow!(User.create!(name: generate_random_username))
     assert_in_delta Time.now, user.last_update, 1
     assert_not_equal user.last_update, previous_date
 
     # It updates even following invalid users
     previous_date = user.last_update
-    user.follow(user)
+    user.follow!(user)
     assert_in_delta Time.now, user.last_update, 1
     assert_not_equal user.last_update, previous_date
 
@@ -99,7 +99,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "users can follow other users" do
-    assert User.new.respond_to?(:follow), "User must have add_friend method"
+    assert User.new.respond_to?(:follow!), "User must have add_friend method"
 
     name1 = generate_random_username
     name2 = generate_random_username
@@ -111,7 +111,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal user2.friends.length, 0
 
     # Now one user follows the other
-    user1.follow(user2)
+    user1.follow!(user2)
 
     # Only the follower must increment its number of friends
     user1 = User.find_by(name: name1)
@@ -126,7 +126,7 @@ class UserTest < ActiveSupport::TestCase
   test "users cannot follow themselves" do
     user = User.create!(name: generate_random_username)
     friends_before = user.friends.length
-    user.follow(user)
+    user.follow!(user)
     assert_equal friends_before, user.friends.length
   end
 
@@ -135,8 +135,8 @@ class UserTest < ActiveSupport::TestCase
     user2 = User.create!(name: generate_random_username)
 
     # Cannot follow the same user twice
-    user1.follow(user2)
-    user1.follow(user2)
+    user1.follow!(user2)
+    user1.follow!(user2)
     assert_equal 1, user1.friends.length
   end
 

@@ -62,7 +62,7 @@ class TwitterUpdater
     else
       puts "Ignoring user #{user.name} level #{user.level}"
     end
-    user.follow(*friends)
+    user.follow!(*friends)
   end
 
   # Configure and return a Twitter::Client instance

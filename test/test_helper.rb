@@ -34,7 +34,7 @@ class ActiveSupport::TestCase
     testdata.each do |username, friendnames|
       user = User.find_or_create_by(name: username)
       friends = friendnames.map { |n| User.find_or_create_by(name: n) }
-      user.follow(*friends)
+      user.follow!(*friends)
     end
 
     # Return the expected result
