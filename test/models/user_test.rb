@@ -62,28 +62,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal user.level, User.find_by(name: user.name).level
   end
 
-  test "user update queue" do
-    # Delete all users created by fixtures
-    User.delete_all
-
-    # Create user randomly with a range of 'last_update's
-    expected_users = (0...10).to_a.shuffle.map do |n|
-      name = generate_random_username
-      User.create!(name: name, last_update: Time.now - n * 100 - 1)
-    end
-
-    # Expect the users sorted by last_udpate
-    expected_users.sort_by! { |u| u.last_update.to_i }
-
-    # Test result order
-    assert_equal expected_users, Array(User.get_update_queue(0, 1000))
-    # Test result size limit
-    assert_equal expected_users[0,5], Array(User.get_update_queue(0, 5))
-    # Test result threshold
-    assert_equal expected_users[0...-4], Array(User.get_update_queue(350, 10))
-    assert_equal expected_users[0...-7], Array(User.get_update_queue(650, 10))
-  end
-
   test "user names lenght is limited to 15 chars" do
     assert_raises *INVALID_RECORD_EXCEPTIONS  do
       User.create!(name: "a_looooooooooooooooooooong_name")

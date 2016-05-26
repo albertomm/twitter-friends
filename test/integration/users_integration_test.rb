@@ -34,4 +34,23 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
     assert_response 422 # "Unprocessable Entity"
   end
 
+  test "delete user" do
+    # Create a user
+    username = generate_random_username
+    post "/users", name: username
+    assert_response :created
+    # Delete the user
+    delete "/users/#{username}"
+    assert_response :success
+    # Check if still exists
+    get "/users/#{username}"
+    assert_response :missing
+  end
+
+  test "delete inexistent user" do
+    username = generate_random_username
+    delete "/users/#{username}"
+    assert_response :missing
+  end
+
 end

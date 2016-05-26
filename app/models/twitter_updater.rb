@@ -32,7 +32,7 @@ class TwitterUpdater
   # Main update loop method
   def do_update_loop
     # Get some users ready to be updated
-    users = User.get_update_queue(60, 100)
+    users = UpdateQueue.get_first_users(60, 100)
 
     # Update the users
     users.each do |user|
@@ -50,17 +50,19 @@ class TwitterUpdater
   # Fetch the user friends from Twitter and add them as friends here
   def update_user_friends(user)
     friends = []
-    if user.level <= User::LEVEL_FRIEND then
-      puts "Updating user #{user.name} level #{user.level}"
+    puts "Updating user #{user.name} level #{user.level}"
+    begin
       friendnames = get_twitter_friend_names(user.name)
-      friend_level = user.level + 1
-      friendnames.each do |name|
-        friend = User.find_or_create_by!(name: name)
-        friend.level_up!(friend_level)
-        friends << friend
-      end
-    else
-      puts "Ignoring user #{user.name} level #{user.level}"
+    rescue Twitter::Error::NotFound
+      puts "User #{user.name} doesn't exist in Twitter"
+      user.destroy
+      return
+    end
+    friend_level = user.level + 1
+    friendnames.each do |name|
+      friend = User.find_or_create_by!(name: name)
+      friend.level_up!(friend_level)
+      friends << friend
     end
     user.follow!(*friends)
   end

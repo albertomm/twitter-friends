@@ -32,4 +32,18 @@ class UsersControllerTest < ActionController::TestCase
     assert_response 422 # "Unprocessable Entity"
   end
 
+  test "delete user" do
+    # Create a new user
+    username = generate_random_username
+    post :create, name: username
+    assert_response :success
+    # Delete the user
+    delete :destroy, name: username
+    assert_response :success
+    # Check if it exists
+    assert_raises *NOT_FOUND_EXCEPTIONS do
+      get :show, name: username
+    end
+  end
+
 end

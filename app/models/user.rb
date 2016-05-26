@@ -4,18 +4,6 @@ class User
 
   include Neo4j::ActiveNode
 
-  ## CLASS METHODS
-
-  # Return the users most likely to be needing an update
-  def self.get_update_queue(threshold, limit = 10)
-    date_min = Time.now.to_i - threshold
-    users = User.all(:u)
-      .where("u.last_update < {date_min}")
-      .params(date_min: date_min)
-      .limit(limit)
-      .order(:last_update)
-  end
-
   ## PROPERTIES
 
   # User name
