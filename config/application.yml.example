@@ -1,0 +1,16 @@
+# Copy this file as "application.yml" and change the parameters below:
+
+# Twitter credentials. Get yours at https://apps.twitter.com/
+twitter_consumer_key: CHANGEME
+twitter_consumer_secret: CHANGEME
+twitter_bearer_token: CHANGEME
+
+# Neo4j server connection URL
+# WARNING: don't use the same instance for test and production!
+# Some tests will destroy all the data!
+test:
+  neo4j_url: 'http://neo4j:neo4j@localhost:7474'
+development:
+  neo4j_url: 'http://neo4j:neo4j@localhost:7474'
+production:
+  neo4j_url: 'http://neo4j:neo4j@other_host:7474'
