@@ -12,8 +12,8 @@ class User
     users = User.all(:u)
       .where("u.last_update < {date_min}")
       .params(date_min: date_min)
-      .order(:last_update)
       .limit(limit)
+      .order(:last_update)
   end
 
   ## PROPERTIES
@@ -82,7 +82,8 @@ class User
   end
 
   # Get recommendations about new friends
-  def suggest_friends
+  # DEPRECATED: relational style
+  def suggest_friends_relational
     candidates = Set.new # Users followed by friends
     result = Set.new
     self.friends.each do |friend|
@@ -96,6 +97,18 @@ class User
       end
     end
     result.to_a
+  end
+
+  # Get recommendations about new friends using Cypher (Neo4j)
+  def suggest_friends
+    # Retrieve the suggested friend IDs
+    friend_ids = Neo4j::Session.current.query
+      .match('(user:User {name: "X"})-->(friend1:User)-->(recommend:User)<--(friend2:User)')
+      .where('(user)-->(friend2) AND NOT (user)-->(recommend)')
+      .return('distinct(recommend).uuid as id')
+      .to_a.map { |n| n.id }
+    # Return the friend objects
+    User.find(friend_ids)
   end
 
 end
