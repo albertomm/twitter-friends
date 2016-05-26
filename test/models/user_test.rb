@@ -64,7 +64,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "user update queue" do
     # Delete all users created by fixtures
-    User.all.delete_all
+    User.delete_all
 
     # Create user randomly with a range of 'last_update's
     expected_users = (0...10).to_a.shuffle.map do |n|

@@ -30,7 +30,7 @@ class User
   validates :level, presence: true
 
   # Friends
-  has_many :out, :friends, model_class: "User", type: "friends"
+  has_many :out, :friends, model_class: "User", type: "follows"
 
   # Timestamp of the last friends update
   property :last_update, type: DateTime, default: 0
@@ -103,8 +103,8 @@ class User
   def suggest_friends
     # Retrieve the suggested friend IDs
     friend_ids = Neo4j::Session.current.query
-      .match('(user:User {name: "X"})-->(friend1:User)-->(recommend:User)<--(friend2:User)')
-      .where('(user)-->(friend2) AND NOT (user)-->(recommend)')
+      .match('(user:User {name: "X"})-[:follows]->(friend1:User)-[:follows]->(recommend:User)<--(friend2:User)')
+      .where('(user)-[:follows]->(friend2) AND NOT (user)-[:follows]->(recommend)')
       .return('distinct(recommend).uuid as id')
       .to_a.map { |n| n.id }
     # Return the friend objects
