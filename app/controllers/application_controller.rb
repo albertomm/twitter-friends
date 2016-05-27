@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
     render text: exception.message, status: 422 # "Unprocessable Entity"
   end
 
+  # Use this method in before_action to retrieve the user by user_name
   def find_user_by_name
     @user = User.find_by!(name: params[:user_name])
   end

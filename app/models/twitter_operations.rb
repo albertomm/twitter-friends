@@ -3,7 +3,7 @@
 class TwitterOperations
 
   def initialize(verbose: false)
-    # Print 
+    # Print messages about progress
     @verbose = verbose
   end
 
