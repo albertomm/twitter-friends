@@ -5,4 +5,6 @@ watch( '.*\.(rb|yml)' ) do |something|
   puts
   system "rake test"
   puts
+  system "rails_best_practices"
+  puts
 end
