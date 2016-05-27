@@ -3,113 +3,99 @@
 # Maybe we should call it a service?
 class TwitterUpdater
 
-  def initialize
-    puts "updater started"
+  def initialize(verbose: false, threshold: 60 * 60 * 24, batch_size: 100)
+
+    # Print information
+    @verbose = verbose
+
+    # Select only users wich haven't been update in at least X seconds
+    @threshold = threshold
+
+    # How many users to update each loop
+    @batch_size = batch_size
+
+    if @verbose
+      puts
+      puts "==============="
+      puts "Twitter Updater"
+      puts "==============="
+      puts
+    end
+
+    # Twitter Operations helper
+    @ops = TwitterOperations.new verbose: @verbose
   end
 
   # Start updating all pending users.
   def run
     while true do
-      puts "loop"
-      do_update_loop
+      do_update_loop @threshold, @batch_size
     end
   end
-
-  # Wait with a countdown
-  def countdown(seconds)
-    seconds.downto(0).each do |remaining|
-      if remaining < 5
-        puts remaining
-      elsif remaining % 60 == 0
-        puts "retrying in #{remaining}"
-      end
-      sleep 1
-    end
-  end
-
-  private
 
   # Main update loop method
-  def do_update_loop
+  def do_update_loop(threshold, batch_size)
     # Get some users ready to be updated
-    users = UpdateQueue.get_first_users(60, 100)
+    users = UpdateQueue.get_first_users(threshold, batch_size)
+    if @verbose
+      puts
+      puts "Got #{users.length} from the queue."
+    end
 
     # Update the users
     users.each do |user|
-      puts "updating #{user.name}"
-      update_user_friends(user)
+      update_twitter_friends(user)
     end
 
     # Wait if the queue is empty
     if users.empty? then
-      puts "Queue is empty, sleeping..."
+      if @verbose
+        puts
+        puts "Queue is empty, sleeping..."
+        puts
+      end
       sleep 60
     end
   end
 
   # Fetch the user friends from Twitter and add them as friends here
-  def update_user_friends(user)
-    friends = []
-    puts "Updating user #{user.name} level #{user.level}"
+  def update_twitter_friends(user)
+    puts " -> Updating user #{user.name} level #{user.level}"
     begin
-      friendnames = get_twitter_friend_names(user.name)
+      friend_names = @ops.get_twitter_friend_names(user.name)
     rescue Twitter::Error::NotFound
-      puts "User #{user.name} doesn't exist in Twitter"
+      puts "  ! User #{user.name} doesn't exist in Twitter." if @verbose
       user.destroy
       return
     end
+    update_user_friend_list(user, friend_names)
+  end
+
+  # Gien a friend name list, add these as friends and remove the non existent
+  def update_user_friend_list(user, friend_names)
+    # Not important, but helps debugging
+    friend_names.sort!
+
+    # Remove the missing friends
+    user.friends.each do |friend|
+      unless friend_names.include?(friend.name)
+        puts "  --- #{user.name} is no longer following #{friend.name}" if @verbose
+        user.unfollow(friend)
+      end
+    end
+
+    # Add the new friends
     friend_level = user.level + 1
-    friendnames.each do |name|
+    friends = []
+    friend_names.each do |name|
       friend = User.find_or_create_by!(name: name)
       friend.level_up!(friend_level)
-      friends << friend
+      unless user.friends.include?(friend)
+        puts "  +++ #{user.name} is now following #{name}" if @verbose
+        friends << friend
+      end
     end
     user.follow!(*friends)
-  end
-
-  # Configure and return a Twitter::Client instance
-  def get_twitter_client
-    twitter_config = {
-      consumer_key: Figaro.env.twitter_consumer_key!,
-      consumer_secret: Figaro.env.twitter_consumer_secret!,
-      bearer_token: Figaro.env.twitter_bearer_token!
-    }
-    Twitter::REST::Client.new(twitter_config)
-  end
-
-  # Fetch the twitter friend names via REST
-  def get_twitter_friend_names(username)
-    client = get_twitter_client
-
-    # Fetch friend IDS
-    friend_ids = begin
-      client.friends(username).to_a
-    rescue Twitter::Error::TooManyRequests => error
-      wait_time = error.rate_limit.reset_in + 10
-      puts "RATE LIMIT HIT: Wait #{wait_time}"
-      self.countdown(wait_time)
-      retry
-    end
-    puts "  #{friend_ids.length} friend IDs retrieved"
-
-    # Fetch friend data
-    friends = begin
-      client.users(friend_ids).to_a
-    rescue Twitter::Error::TooManyRequests => error
-      wait_time = error.rate_limit.reset_in + 10
-      puts "RATE LIMIT HIT: Wait #{wait_time}"
-      self.countdown(wait_time)
-      retry
-    end
-    puts "  #{friends.length} friends retrieved"
-
-    # Extract the friend names
-    friendnames = []
-    friends.each do |f|
-      puts f.screen_name
-      friendnames << f.screen_name
-    end
-    friendnames
   end
 
 end
