@@ -92,13 +92,17 @@ class UserTest < ActiveSupport::TestCase
     user1.follow!(user2)
 
     # Only the follower must increment its number of friends
-    user1 = User.find_by(name: name1)
-    assert_equal user1.friends.length, 1
-    user2 = User.find_by(name: name2)
-    assert_equal user2.friends.length, 0
+    assert_equal User.find_by!(name: name1).friends.length, 1
+    assert_equal User.find_by!(name: name2).friends.length, 0
 
     # The first user is following the second user
-    assert_equal user1.friends.first.id, user2.id
+    assert_equal User.find_by!(name: name1).friends.first.id,
+                 User.find_by!(name: name2).id
+
+    # The user 1 can unfollow user2
+    user1.unfollow(user2)
+    assert User.find_by!(name: name1).friends.to_a.empty?,
+      "Unfollow has no effect."
   end
 
   test "users cannot follow themselves" do
