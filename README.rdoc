@@ -1,28 +1,34 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+=== Requirements
 
-Things you may want to cover:
+This project has been tested with:
 
-* Ruby version
+ * ruby 2.3.1p112
 
-* System dependencies
+ * Rails 4.2.6
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+ * neo4j-community-3.0.1
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+=== Configuration
+
+Copy the file config/application.yml.example to config/application.yml and put
+there your database connection URLs and API credentials.
+
+=== Testing
+
+To run the test suite:
+
+<tt>rake test</tt>
+
+Alternatively, you can use the observr gem to run the tests every time the
+code changes with:
+
+<tt>observr project.watchr</tt>
+
+=== Background services
+
+The background user updater can be executed running:
+
+<tt>bin/rake twitter:update</tt>
