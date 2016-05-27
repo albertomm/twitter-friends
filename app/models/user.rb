@@ -1,5 +1,3 @@
-require 'set'
-
 class User
 
   include Neo4j::ActiveNode
@@ -48,14 +46,10 @@ class User
 
   # Add other users as friends, will update itself.
   def follow!(*friends)
-    friends.each do |friend|
-      # The user cannot follow itself
-      next if friend.name == self.name
-      # Don't add duplicates
-      next if self.friends.include?(friend)
-      self.friends << friend
-    end
-    # Set the last_update time
+    friends.uniq!
+    friends.delete(self)
+    friends -= self.friends
+    self.friends << friends
     self.last_update = Time.now
     self.save!
   end
