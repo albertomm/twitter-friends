@@ -14,7 +14,7 @@ class TwitterUpdaterTest < ActiveSupport::TestCase
     # Add random friends
     friend_names = Array.new(10) { generate_random_username }
     updater.update_user_friend_list(user, friend_names)
-    assert_equal friend_names.sort, user.friends.map {|f| f.name }.sort
+    assert_equal friend_names.sort, user.friends.map {|f| f.name }.sort,
       "New friends aren't the ones requested"
 
     # The new friends must have the correct levels
