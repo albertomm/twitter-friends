@@ -1,14 +1,13 @@
 require 'test_helper'
 
 class UsersControllerTest < ActionController::TestCase
-
-  test "get missing user raises exception" do
-    assert_raises *NOT_FOUND_EXCEPTIONS  do
-      get :show, name: "missing user"
+  test 'get missing user raises exception' do
+    assert_raises *NOT_FOUND_EXCEPTIONS do
+      get :show, name: 'missing user'
     end
   end
 
-  test "create user" do
+  test 'create user' do
     # Create a user in the database by POSTing its name
     username = generate_random_username
     post :create, name: username
@@ -26,13 +25,13 @@ class UsersControllerTest < ActionController::TestCase
     assert_equal response.body, user.to_json
   end
 
-  test "create invalid user" do
-    username = "a_looooooooooooooooooooong_name"
+  test 'create invalid user' do
+    username = 'a_looooooooooooooooooooong_name'
     post :create, name: username
     assert_response 422 # "Unprocessable Entity"
   end
 
-  test "delete user" do
+  test 'delete user' do
     # Create a new user
     username = generate_random_username
     post :create, name: username
@@ -45,5 +44,4 @@ class UsersControllerTest < ActionController::TestCase
       get :show, name: username
     end
   end
-
 end

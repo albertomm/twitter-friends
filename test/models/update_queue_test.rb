@@ -1,8 +1,7 @@
 require 'test_helper'
 
 class UpdateQueueTest < ActiveSupport::TestCase
-
-  test "get first users" do
+  test 'get first users' do
     # Delete all users created by fixtures and other tests
     User.delete_all
 
@@ -22,10 +21,9 @@ class UpdateQueueTest < ActiveSupport::TestCase
     # Test result order
     assert_equal expected_users, Array(UpdateQueue.get_first_users(0, 1000))
     # Test result size limit
-    assert_equal expected_users[0,5], Array(UpdateQueue.get_first_users(0, 5))
+    assert_equal expected_users[0, 5], Array(UpdateQueue.get_first_users(0, 5))
     # Test result threshold
     assert_equal expected_users[0...-4], Array(UpdateQueue.get_first_users(350, 10))
     assert_equal expected_users[0...-7], Array(UpdateQueue.get_first_users(650, 10))
   end
-
 end

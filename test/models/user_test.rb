@@ -1,18 +1,17 @@
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
-
-  test "users have names" do
+  test 'users have names' do
     assert User.new.respond_to?(:name)
   end
 
-  test "users must have names" do
-    assert_raises *INVALID_RECORD_EXCEPTIONS  do
-      User.create!()
+  test 'users must have names' do
+    assert_raises *INVALID_RECORD_EXCEPTIONS do
+      User.create!
     end
   end
 
-  test "users have a last updated timestamp" do
+  test 'users have a last updated timestamp' do
     # It defaults to 0
     username = generate_random_username
     user = User.create!(name: username)
@@ -34,7 +33,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal user.last_update.to_i, User.find(user.id).last_update.to_i
   end
 
-  test "users have a level" do
+  test 'users have a level' do
     # User levels are numbered in relation to the distance to a primary user
     assert User::LEVEL_PRIMARY < User::LEVEL_FRIEND
     assert User::LEVEL_FRIEND < User::LEVEL_OTHER
@@ -62,13 +61,13 @@ class UserTest < ActiveSupport::TestCase
     assert_equal user.level, User.find_by(name: user.name).level
   end
 
-  test "user names lenght is limited to 15 chars" do
-    assert_raises *INVALID_RECORD_EXCEPTIONS  do
-      User.create!(name: "a_looooooooooooooooooooong_name")
+  test 'user names lenght is limited to 15 chars' do
+    assert_raises *INVALID_RECORD_EXCEPTIONS do
+      User.create!(name: 'a_looooooooooooooooooooong_name')
     end
   end
 
-  test "user names must be unique" do
+  test 'user names must be unique' do
     username = generate_random_username
     User.create!(name: username)
     assert_raises *INVALID_RECORD_EXCEPTIONS do
@@ -76,8 +75,8 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "users can follow other users" do
-    assert User.new.respond_to?(:follow!), "User must have add_friend method"
+  test 'users can follow other users' do
+    assert User.new.respond_to?(:follow!), 'User must have add_friend method'
 
     name1 = generate_random_username
     name2 = generate_random_username
@@ -102,17 +101,17 @@ class UserTest < ActiveSupport::TestCase
     # The user 1 can unfollow user2
     user1.unfollow(user2)
     assert User.find_by!(name: name1).friends.to_a.empty?,
-      "Unfollow has no effect."
+           'Unfollow has no effect.'
   end
 
-  test "users cannot follow themselves" do
+  test 'users cannot follow themselves' do
     user = User.create!(name: generate_random_username)
     friends_before = user.friends.length
     user.follow!(user)
     assert_equal friends_before, user.friends.length
   end
 
-  test "user friends are unique" do
+  test 'user friends are unique' do
     user1 = User.create!(name: generate_random_username)
     user2 = User.create!(name: generate_random_username)
 
@@ -122,10 +121,9 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 1, user1.friends.length
   end
 
-  test "users get recommendations" do
+  test 'users get recommendations' do
     expected_result = create_test_users
-    result = User.find_by(name: "X").suggest_friends.map { |x| x.name }
+    result = User.find_by(name: 'X').suggest_friends.map(&:name)
     assert_equal expected_result.sort, result.sort
   end
-
 end

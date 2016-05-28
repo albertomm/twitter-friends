@@ -1,16 +1,15 @@
 require 'test_helper'
 
 class FriendsIntegrationTest < ActionDispatch::IntegrationTest
-
-  test "add one friend" do
+  test 'add one friend' do
     # Create a user
     username = generate_random_username
-    post '/users', {:name => username}
+    post '/users', name: username
     assert_response :created
 
     # Follow a friend
     friendname = generate_random_username
-    post "/users/#{username}/friends", {:names => friendname}
+    post "/users/#{username}/friends", names: friendname
 
     # We are redirected to the new friend resource URL
     assert_created_redirect "/users/#{username}/friends/#{friendname}"
@@ -18,7 +17,7 @@ class FriendsIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "add and remove friends" do
+  test 'add and remove friends' do
     # Create a user
     username = generate_random_username
     post_via_redirect '/users', name: username
@@ -42,20 +41,19 @@ class FriendsIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :missing
   end
 
-  test "create invalid friend" do
+  test 'create invalid friend' do
     # Create a user
     username = generate_random_username
-    post "/users", name: username
+    post '/users', name: username
     assert_response :success
 
     # Reject friend names too long
-    friendname = "a_looooooooooooooooooooooooooong_name"
+    friendname = 'a_looooooooooooooooooooooooooong_name'
     post "/users/#{username}/friends", name: friendname
     assert_response 422 # "Unprocessable Entity"
 
     # Reject friend names too short
-    post "/users/#{username}/friends", name: ""
+    post "/users/#{username}/friends", name: ''
     assert_response 422 # "Unprocessable Entity"
   end
-
 end

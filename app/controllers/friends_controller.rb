@@ -1,5 +1,4 @@
 class FriendsController < ApplicationController
-
   before_action :find_user_by_name
 
   # Show all the user friends
@@ -41,12 +40,11 @@ class FriendsController < ApplicationController
   def create_many
     # Get or create the friends
     friends = Set.new(params[:names]).map do |name|
-      User.find_or_create_by!({:name => name})
+      User.find_or_create_by!(name: name)
     end
 
     # Make the user follow the friends
     @user.follow!(*friends)
     render nothing: true, status: :created
   end
-
 end

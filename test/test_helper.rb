@@ -11,22 +11,22 @@ class ActiveSupport::TestCase
   NOT_FOUND_EXCEPTIONS = [
     # ActiveRecord::RecordNotFound,
     Neo4j::ActiveNode::Labels::RecordNotFound
-  ]
+  ].freeze
 
   # List of exceptions used to notify an invalid record
   INVALID_RECORD_EXCEPTIONS = [
     # ActiveRecord::RecordInvalid,
     Neo4j::ActiveNode::Persistence::RecordInvalidError
-  ]
+  ].freeze
 
   # Create the users mentioned in the requirements example.
   # Self-relations seems to be too complex to use in fixtures.
   def create_test_users
     testdata = {
-      'X' => ['Laura', 'Pepe', 'Manuel'],
-      'Laura' => ['Pepe', 'Marta', 'María'],
-      'Pepe' => ['Leo', 'Laura', 'Marta', 'Juan'],
-      'Manuel' => ['Leo', 'Pepe', 'Sergio', 'Víctor'],
+      'X' => %w(Laura Pepe Manuel),
+      'Laura' => %w(Pepe Marta María),
+      'Pepe' => %w(Leo Laura Marta Juan),
+      'Manuel' => %w(Leo Pepe Sergio Víctor)
     }
 
     # Create the test users and relations
@@ -38,7 +38,7 @@ class ActiveSupport::TestCase
     end
 
     # Return the expected result
-    ['Marta', 'Leo']
+    %w(Marta Leo)
   end
 
   # Assert that the response is the info of the expected users
@@ -58,15 +58,14 @@ class ActiveSupport::TestCase
   # responses.
   def assert_created_redirect(location_url)
     assert_response :created
-    assert response.headers.key?("Location"), "Location header not found."
-    assert response.headers["Location"], location_url
+    assert response.headers.key?('Location'), 'Location header not found.'
+    assert response.headers['Location'], location_url
   end
 
   # Follow a REST "created" redirect.
   # RoR "follow_redirect!" only works with status code 302
   def follow_created_redirect
     assert_response :created
-    get response.headers["Location"]
+    get response.headers['Location']
   end
-
 end

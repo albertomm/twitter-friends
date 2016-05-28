@@ -1,8 +1,7 @@
 require 'test_helper'
 
 class FriendsControllerTest < ActionController::TestCase
-
-  test "add one friend" do
+  test 'add one friend' do
     # Create a user
     username = generate_random_username
     User.create!(name: username)
@@ -26,7 +25,7 @@ class FriendsControllerTest < ActionController::TestCase
     assert_equal friend.to_json, response.body
   end
 
-  test "add many friends and delete" do
+  test 'add many friends and delete' do
     # Crete a user
     username = generate_random_username
     user = User.create!(name: username)
@@ -55,7 +54,6 @@ class FriendsControllerTest < ActionController::TestCase
 
     # The friend list shouldn't include the deleted friend
     get :index, user_name: username
-    assert_not response.body.include?(friend.name), "The friend is still there."
+    assert_not response.body.include?(friend.name), 'The friend is still there.'
   end
-
 end

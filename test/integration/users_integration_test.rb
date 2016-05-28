@@ -1,16 +1,15 @@
 require 'test_helper'
 
 class UserIntegrationTest < ActionDispatch::IntegrationTest
-
-  test "get missing user returns 404" do
+  test 'get missing user returns 404' do
     get "/users/#{generate_random_username}"
     assert_response :missing
   end
 
-  test "create a user by posting the name" do
+  test 'create a user by posting the name' do
     # Post a new user name
     username = generate_random_username
-    post "/users", name: username
+    post '/users', name: username
 
     # The response sould be a redirect to the User's URL
     assert_created_redirect "/users/#{username}"
@@ -23,21 +22,21 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
     assert_equal json.fetch('name'), username
   end
 
-  test "create invalid user" do
+  test 'create invalid user' do
     # Reject user names too long
-    username = "a_looooooooooooooooooooong_name"
-    post "/users", name: username
+    username = 'a_looooooooooooooooooooong_name'
+    post '/users', name: username
     assert_response 422 # "Unprocessable Entity"
 
     # Reject user names too short
-    post "/users", name: ""
+    post '/users', name: ''
     assert_response 422 # "Unprocessable Entity"
   end
 
-  test "delete user" do
+  test 'delete user' do
     # Create a user
     username = generate_random_username
-    post "/users", name: username
+    post '/users', name: username
     assert_response :created
     # Delete the user
     delete "/users/#{username}"
@@ -47,10 +46,9 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :missing
   end
 
-  test "delete inexistent user" do
+  test 'delete inexistent user' do
     username = generate_random_username
     delete "/users/#{username}"
     assert_response :missing
   end
-
 end

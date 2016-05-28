@@ -12,5 +12,4 @@ class ApplicationController < ActionController::Base
   def find_user_by_name
     @user = User.find_by!(name: params[:user_name])
   end
-
 end

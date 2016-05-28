@@ -1,7 +1,6 @@
 # Use this class to interact with the Twitter REST API.
 # It is mainly used by TwitterUpdater
 class TwitterOperations
-
   def initialize(verbose: false)
     # Print messages about progress
     @verbose = verbose
@@ -26,7 +25,7 @@ class TwitterOperations
     friends.each do |f|
       friendnames << f.screen_name
     end
-    return friendnames
+    friendnames
   end
 
   # Configure and return a Twitter::Client instance
@@ -67,5 +66,4 @@ class TwitterOperations
       sleep 1
     end
   end
-
 end

@@ -2,9 +2,7 @@
 # logic required to update a user's friends making calls to the Twitter REST API
 # Maybe we should call it a service?
 class TwitterUpdater
-
   def initialize(verbose: false, threshold: 60 * 60 * 24, batch_size: 100)
-
     # Print information
     @verbose = verbose
 
@@ -16,9 +14,9 @@ class TwitterUpdater
 
     if @verbose
       puts
-      puts "==============="
-      puts "Twitter Updater"
-      puts "==============="
+      puts '==============='
+      puts 'Twitter Updater'
+      puts '==============='
       puts
     end
 
@@ -28,7 +26,7 @@ class TwitterUpdater
 
   # Start updating all pending users.
   def run
-    while true do
+    loop do
       do_update_loop @threshold, @batch_size
     end
   end
@@ -48,10 +46,10 @@ class TwitterUpdater
     end
 
     # Wait if the queue is empty
-    if users.empty? then
+    if users.empty?
       if @verbose
         puts
-        puts "Queue is empty, sleeping..."
+        puts 'Queue is empty, sleeping...'
         puts
       end
       sleep 60
@@ -97,5 +95,4 @@ class TwitterUpdater
     end
     user.follow!(*friends)
   end
-
 end
